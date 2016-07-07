@@ -19,7 +19,6 @@ func ClusterServices() (ECSServices, error) {
 	var log = logger.New("ns=ClusterServices")
 
 	services := ECSServices{}
-
 	lsres, err := ECS().ListServices(&ecs.ListServicesInput{
 		Cluster: aws.String(os.Getenv("CLUSTER")),
 	})

@@ -31,6 +31,8 @@ type Provider interface {
 	CertificateGenerate(domains []string) (*structs.Certificate, error)
 	CertificateList() (structs.Certificates, error)
 
+	ClusterServices() (*structs.Services, error)
+
 	EventSend(*structs.Event, error) error
 
 	EnvironmentGet(app string) (structs.Environment, error)
@@ -136,6 +138,10 @@ func CertificateGenerate(domains []string) (*structs.Certificate, error) {
 
 func CertificateList() (structs.Certificates, error) {
 	return CurrentProvider.CertificateList()
+}
+
+func ClusterServices() (*structs.Services, error) {
+	return CurrentProvider.ClusterServices()
 }
 
 func EventSend(e *structs.Event, err error) error {

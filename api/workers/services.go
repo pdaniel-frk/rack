@@ -21,12 +21,15 @@ func StartServicesCapacity() {
 	}
 }
 
+func ServiceEvents() {
+
+}
+
 // Get initial convergence state
 func checkConverged() (bool, ecs.ServiceEvent) {
 	log := logger.New("ns=services_monitor")
 
 	services, err := models.ClusterServices()
-
 	if err != nil {
 		log.Log("fn=checkConverged err=%q", err)
 

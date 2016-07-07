@@ -99,6 +99,11 @@ func (p *TestProviderRunner) CertificateList() (structs.Certificates, error) {
 	return p.Certificates, nil
 }
 
+func (p *TestProviderRunner) ClusterServices() (*structs.Services, error) {
+	p.Called()
+	return &structs.Services{}, nil
+}
+
 func (p *TestProviderRunner) EventSend(e *structs.Event, err error) error {
 	p.Called(e, err)
 	return nil

@@ -1,5 +1,7 @@
 package structs
 
+import "time"
+
 type Service struct {
 	Name         string `json:"name"`
 	Status       string `json:"status"`
@@ -15,3 +17,10 @@ type Service struct {
 }
 
 type Services []Service
+
+type ServiceEvent struct {
+	Message   string
+	CreatedAt time.Time
+}
+
+type ServiceEvents []ServiceEvent
