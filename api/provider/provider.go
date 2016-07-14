@@ -44,6 +44,7 @@ type Provider interface {
 
 	LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error
 
+	MonitorCluster()
 	MonitorHeartbeat()
 
 	ReleaseDelete(app, id string) (*structs.Release, error)
@@ -51,6 +52,8 @@ type Provider interface {
 	ReleaseList(app string) (structs.Releases, error)
 	ReleasePromote(app, id string) (*structs.Release, error)
 	ReleaseSave(*structs.Release, string, string) error
+
+	ResourcesList(app string) (structs.Resources, error)
 
 	ServiceCreate(name, kind string, params map[string]string) (*structs.Service, error)
 	ServiceDelete(name string) (*structs.Service, error)
@@ -173,6 +176,11 @@ func LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error {
 	return CurrentProvider.LogStream(app, w, opts)
 }
 
+func MonitorCluster() {
+	CurrentProvider.MonitorCluster()
+	return
+}
+
 func MonitorHeartbeat() {
 	CurrentProvider.MonitorHeartbeat()
 	return
@@ -196,6 +204,10 @@ func ReleasePromote(app, id string) (*structs.Release, error) {
 
 func ReleaseSave(r *structs.Release, logdir, key string) error {
 	return CurrentProvider.ReleaseSave(r, logdir, key)
+}
+
+func ResourcesList(app string) (structs.Resources, error) {
+	return CurrentProvider.ResourcesList(app)
 }
 
 func ServiceCreate(name, kind string, params map[string]string) (*structs.Service, error) {

@@ -9,7 +9,7 @@ import (
 
 func main() {
 	go workers.StartAutoscale()
-	go workers.StartCluster()
+	go provider.MonitorCluster()
 	go provider.MonitorHeartbeat()
 	go workers.StartServicesCapacity()
 

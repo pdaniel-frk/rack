@@ -139,6 +139,11 @@ func (p *TestProviderRunner) LogStream(app string, w io.Writer, opts structs.Log
 	return nil
 }
 
+func (p *TestProviderRunner) MonitorCluster() {
+	p.Called()
+	return
+}
+
 func (p *TestProviderRunner) MonitorHeartbeat() {
 	p.Called()
 	return
@@ -167,6 +172,11 @@ func (p *TestProviderRunner) ReleasePromote(app, id string) (*structs.Release, e
 func (p *TestProviderRunner) ReleaseSave(r *structs.Release, logdir, key string) error {
 	p.Called(r, logdir, key)
 	return nil
+}
+
+func (p *TestProviderRunner) ResourcesList(app string) (structs.Resources, error) {
+	p.Called(app)
+	return structs.Resources{}, nil
 }
 
 func (p *TestProviderRunner) ServiceCreate(name, kind string, params map[string]string) (*structs.Service, error) {
