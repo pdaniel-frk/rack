@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/convox/rack/api/cache"
+	"github.com/convox/rack/api/helpers"
 )
 
 type Resource struct {
@@ -46,12 +47,12 @@ func ListResources(app string) (Resources, error) {
 
 	for _, r := range res.StackResources {
 		resources[*r.LogicalResourceId] = Resource{
-			Id:     cs(r.PhysicalResourceId, ""),
-			Name:   cs(r.LogicalResourceId, ""),
-			Reason: cs(r.ResourceStatusReason, ""),
-			Status: cs(r.ResourceStatus, ""),
-			Type:   cs(r.ResourceType, ""),
-			Time:   ct(r.Timestamp),
+			Id:     helpers.CoalesceS(r.PhysicalResourceId, ""),
+			Name:   helpers.CoalesceS(r.LogicalResourceId, ""),
+			Reason: helpers.CoalesceS(r.ResourceStatusReason, ""),
+			Status: helpers.CoalesceS(r.ResourceStatus, ""),
+			Type:   helpers.CoalesceS(r.ResourceType, ""),
+			Time:   helpers.CoalesceT(r.Timestamp),
 		}
 	}
 

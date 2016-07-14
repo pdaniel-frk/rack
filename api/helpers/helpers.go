@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/ddollar/logger"
@@ -101,6 +102,19 @@ func RackId() string {
 	return os.Getenv("CLIENT_ID")
 }
 
+// ShortNameToStackName prepends the rack's name to an app's name.
+// appName will be returned as is if it equals the rack name.
+func ShortNameToStackName(appName string) string {
+	rack := os.Getenv("RACK")
+
+	if rack == appName {
+		// Do no prefix the rack itself.
+		return appName
+	}
+
+	return rack + "-" + appName
+}
+
 func RecoverWith(f func(err error)) {
 	if r := recover(); r != nil {
 		// coerce r to error type
@@ -110,5 +124,23 @@ func RecoverWith(f func(err error)) {
 		}
 
 		f(err)
+	}
+}
+
+// CoalesceS returns a def string if s is nil
+func CoalesceS(s *string, def string) string {
+	if s != nil {
+		return *s
+	} else {
+		return def
+	}
+}
+
+// CoalesceT returns a zero-valued time.Time{} if t is nil
+func CoalesceT(t *time.Time) time.Time {
+	if t != nil {
+		return *t
+	} else {
+		return time.Time{}
 	}
 }

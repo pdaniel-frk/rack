@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/convox/rack/api/helpers"
 	"github.com/convox/rack/client"
 )
 
@@ -272,7 +273,7 @@ func serviceFromStack(stack *cloudformation.Stack) *Service {
 	tags := stackTags(stack)
 	exports := make(map[string]string)
 
-	name := cs(stack.StackName, "<unknown>")
+	name := helpers.CoalesceS(stack.StackName, "<unknown>")
 	if value, ok := tags["Name"]; ok {
 		// StackName probably includes the Rack prefix, prefer Name tag.
 		name = value

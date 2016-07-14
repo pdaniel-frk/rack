@@ -12,7 +12,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -27,22 +26,6 @@ func awserrCode(err error) string {
 	}
 
 	return ""
-}
-
-func cs(s *string, def string) string {
-	if s != nil {
-		return *s
-	} else {
-		return def
-	}
-}
-
-func ct(t *time.Time) time.Time {
-	if t != nil {
-		return *t
-	} else {
-		return time.Time{}
-	}
 }
 
 func coalesce(s *dynamodb.AttributeValue, def string) string {
