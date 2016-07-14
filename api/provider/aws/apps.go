@@ -9,6 +9,27 @@ import (
 	"github.com/convox/rack/api/structs"
 )
 
+func (p *AWSProvider) AppList() (structs.Apps, error) {
+	res, err := p.describeStacks(&cloudformation.DescribeStacksInput{})
+	if err != nil {
+		return nil, err
+	}
+
+	apps := structs.Apps{}
+
+	for _, stack := range res.Stacks {
+		tags := stackTags(stack)
+
+		if tags["System"] == "convox" && tags["Type"] == "app" {
+			if tags["Rack"] == "" || tags["Rack"] == os.Getenv("RACK") {
+				apps = append(apps, appFromStack(stack))
+			}
+		}
+	}
+
+	return apps, nil
+}
+
 func (p *AWSProvider) AppGet(name string) (*structs.App, error) {
 	var res *cloudformation.DescribeStacksOutput
 	var err error

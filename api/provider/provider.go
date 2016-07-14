@@ -12,6 +12,7 @@ import (
 var CurrentProvider Provider
 
 type Provider interface {
+	AppList() (structs.Apps, error)
 	AppGet(name string) (*structs.App, error)
 
 	BuildCopy(srcApp, id, destApp string) (*structs.Build, error)
@@ -31,8 +32,6 @@ type Provider interface {
 	CertificateGenerate(domains []string) (*structs.Certificate, error)
 	CertificateList() (structs.Certificates, error)
 
-	ClusterServices() (*structs.Services, error)
-
 	EventSend(*structs.Event, error) error
 
 	EnvironmentGet(app string) (structs.Environment, error)
@@ -44,6 +43,8 @@ type Provider interface {
 	InstanceList() (structs.Instances, error)
 
 	LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error
+
+	MonitorHeartbeat()
 
 	ReleaseDelete(app, id string) (*structs.Release, error)
 	ReleaseGet(app, id string) (*structs.Release, error)
@@ -79,6 +80,10 @@ func init() {
 }
 
 /** package-level functions ************************************************************************/
+
+func AppList() (structs.Apps, error) {
+	return CurrentProvider.AppList()
+}
 
 func AppGet(name string) (*structs.App, error) {
 	return CurrentProvider.AppGet(name)
@@ -140,10 +145,6 @@ func CertificateList() (structs.Certificates, error) {
 	return CurrentProvider.CertificateList()
 }
 
-func ClusterServices() (*structs.Services, error) {
-	return CurrentProvider.ClusterServices()
-}
-
 func EventSend(e *structs.Event, err error) error {
 	return CurrentProvider.EventSend(e, err)
 }
@@ -170,6 +171,11 @@ func InstanceList() (structs.Instances, error) {
 
 func LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error {
 	return CurrentProvider.LogStream(app, w, opts)
+}
+
+func MonitorHeartbeat() {
+	CurrentProvider.MonitorHeartbeat()
+	return
 }
 
 func ReleaseDelete(app, id string) (*structs.Release, error) {

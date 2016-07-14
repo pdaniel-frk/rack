@@ -23,6 +23,11 @@ type TestProviderRunner struct {
 	Service      structs.Service
 }
 
+func (p *TestProviderRunner) AppList() (structs.Apps, error) {
+	p.Called()
+	return structs.Apps{}, nil
+}
+
 func (p *TestProviderRunner) AppGet(name string) (*structs.App, error) {
 	p.Called(name)
 	return &p.App, nil
@@ -99,11 +104,6 @@ func (p *TestProviderRunner) CertificateList() (structs.Certificates, error) {
 	return p.Certificates, nil
 }
 
-func (p *TestProviderRunner) ClusterServices() (*structs.Services, error) {
-	p.Called()
-	return &structs.Services{}, nil
-}
-
 func (p *TestProviderRunner) EventSend(e *structs.Event, err error) error {
 	p.Called(e, err)
 	return nil
@@ -137,6 +137,11 @@ func (p *TestProviderRunner) InstanceList() (structs.Instances, error) {
 func (p *TestProviderRunner) LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error {
 	p.Called(app, w, opts)
 	return nil
+}
+
+func (p *TestProviderRunner) MonitorHeartbeat() {
+	p.Called()
+	return
 }
 
 func (p *TestProviderRunner) ReleaseDelete(app, id string) (*structs.Release, error) {
