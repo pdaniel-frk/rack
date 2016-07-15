@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"github.com/convox/rack/api/httperr"
-	"github.com/convox/rack/api/models"
 	"github.com/convox/rack/api/provider"
 )
 
@@ -98,7 +97,7 @@ func SystemUpdate(rw http.ResponseWriter, r *http.Request) *httperr.Error {
 		return httperr.Server(err)
 	}
 
-	models.NotifySuccess("rack:update", notifyData)
+	provider.NotifySuccess("rack:update", notifyData)
 
 	return RenderJson(rw, rack)
 }

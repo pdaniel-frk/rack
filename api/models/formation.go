@@ -226,7 +226,7 @@ func SetFormation(app, process string, opts FormationOptions) error {
 		}
 	}
 
-	NotifySuccess("release:scale", map[string]string{
+	provider.NotifySuccess("release:scale", map[string]string{
 		"app": rel.App,
 		"id":  rel.Id,
 	})

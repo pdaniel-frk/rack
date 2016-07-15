@@ -16,6 +16,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/convox/rack/api/crypt"
+	"github.com/convox/rack/api/provider"
 )
 
 type Release struct {
@@ -118,7 +119,7 @@ func (r *Release) Save() error {
 		}
 	}
 
-	NotifySuccess("release:create", map[string]string{"id": r.Id, "app": r.App})
+	provider.NotifySuccess("release:create", map[string]string{"id": r.Id, "app": r.App})
 
 	return S3Put(app.Outputs["Settings"], fmt.Sprintf("releases/%s/env", r.Id), env, true)
 }
@@ -302,7 +303,7 @@ func (r *Release) Promote() error {
 
 	_, err = UpdateStack(req)
 
-	NotifySuccess("release:promote", map[string]string{
+	provider.NotifySuccess("release:promote", map[string]string{
 		"app": r.App,
 		"id":  r.Id,
 	})

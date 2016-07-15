@@ -8,8 +8,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 )
 
-var NotificationTopic = os.Getenv("NOTIFICATION_TOPIC")
-var NotificationHost = os.Getenv("NOTIFICATION_HOST")
+var (
+	// These variables are also prensent in provider/aws/notify.go
+	// This duplication has to be addressed.
+	NotificationTopic = os.Getenv("NOTIFICATION_TOPIC")
+	NotificationHost  = os.Getenv("NOTIFICATION_HOST")
+)
 
 func (s *Service) CreateWebhook() (*cloudformation.CreateStackInput, error) {
 	var input interface{}

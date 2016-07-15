@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
 	"github.com/convox/rack/api/helpers"
+	"github.com/convox/rack/api/provider"
 	"github.com/convox/rack/client"
 )
 
@@ -160,7 +161,7 @@ func (s *Service) Create() error {
 	_, err = CloudFormation().CreateStack(req)
 
 	if err != nil {
-		NotifySuccess("service:create", map[string]string{
+		provider.NotifySuccess("service:create", map[string]string{
 			"name": s.Name,
 			"type": s.Type,
 		})
@@ -176,7 +177,7 @@ func (s *Service) Delete() error {
 		return err
 	}
 
-	NotifySuccess("service:delete", map[string]string{
+	provider.NotifySuccess("service:delete", map[string]string{
 		"name": s.Name,
 		"type": s.Type,
 	})

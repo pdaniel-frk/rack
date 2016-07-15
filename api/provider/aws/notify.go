@@ -1,4 +1,4 @@
-package models
+package aws
 
 import (
 	"encoding/json"
@@ -12,19 +12,23 @@ import (
 	"github.com/ddollar/logger"
 )
 
-var PauseNotifications = false
+var (
+	PauseNotifications = false
+	NotificationTopic  = os.Getenv("NOTIFICATION_TOPIC")
+	NotificationHost   = os.Getenv("NOTIFICATION_HOST")
+)
 
 // uniform error handling
-func NotifyError(action string, err error, data map[string]string) error {
+func (p *AWSProvider) NotifyError(action string, err error, data map[string]string) error {
 	data["message"] = err.Error()
-	return Notify(action, "error", data)
+	return p.Notify(action, "error", data)
 }
 
-func NotifySuccess(action string, data map[string]string) error {
-	return Notify(action, "success", data)
+func (p *AWSProvider) NotifySuccess(action string, data map[string]string) error {
+	return p.Notify(action, "success", data)
 }
 
-func Notify(name, status string, data map[string]string) error {
+func (p *AWSProvider) Notify(action, status string, data map[string]string) error {
 	if PauseNotifications {
 		return nil
 	}
@@ -33,7 +37,7 @@ func Notify(name, status string, data map[string]string) error {
 	data["rack"] = os.Getenv("RACK")
 
 	event := &client.NotifyEvent{
-		Action:    name,
+		Action:    action,
 		Status:    status,
 		Data:      data,
 		Timestamp: time.Now().UTC(),
@@ -48,10 +52,10 @@ func Notify(name, status string, data map[string]string) error {
 
 	params := &sns.PublishInput{
 		Message:   aws.String(string(message)), // Required
-		Subject:   aws.String(name),
+		Subject:   aws.String(action),
 		TargetArn: aws.String(NotificationTopic),
 	}
-	resp, err := SNS().Publish(params)
+	resp, err := p.sns().Publish(params)
 
 	if err != nil {
 		return err

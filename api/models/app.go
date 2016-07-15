@@ -202,7 +202,7 @@ func (a *App) Create() error {
 
 	helpers.TrackEvent("kernel-app-create-success", nil)
 
-	NotifySuccess("app:create", map[string]string{"name": a.Name})
+	provider.NotifySuccess("app:create", map[string]string{"name": a.Name})
 
 	return nil
 }
@@ -291,7 +291,7 @@ func (a *App) Delete() error {
 
 	go a.Cleanup()
 
-	NotifySuccess("app:delete", map[string]string{"name": a.Name})
+	provider.NotifySuccess("app:delete", map[string]string{"name": a.Name})
 
 	return nil
 }
