@@ -1,8 +1,6 @@
 package workers
 
 import (
-	"fmt"
-	"os"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -66,16 +64,16 @@ func monitorConverged(lastConverged bool, lastEventAt time.Time) (bool, ecs.Serv
 	log.Log("fn=monitorConverged converged=%t events=%d lastEventAt=%q", converged, len(events), lastEventAt)
 
 	if events.HasCapacityWarning() {
-		models.NotifyError("rack:capacity", fmt.Errorf(events.CapacityWarning()), map[string]string{
-			"rack": os.Getenv("RACK"),
-		})
+		//models.NotifyError("rack:capacity", fmt.Errorf(events.CapacityWarning()), map[string]string{
+		//	"rack": os.Getenv("RACK"),
+		//})
 	}
 
 	if converged != lastConverged {
-		models.NotifySuccess("rack:converge", map[string]string{
-			"rack":      os.Getenv("RACK"),
-			"converged": fmt.Sprintf("%t", converged),
-		})
+		//models.NotifySuccess("rack:converge", map[string]string{
+		//	"rack":      os.Getenv("RACK"),
+		//	"converged": fmt.Sprintf("%t", converged),
+		//})
 	}
 
 	return converged, services.LastEvent()

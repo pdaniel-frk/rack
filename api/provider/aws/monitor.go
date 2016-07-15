@@ -73,14 +73,23 @@ func (p *AWSProvider) MonitorCluster() {
 
 				i.Unhealthy = true
 				instances[k] = i
-
 				if err != nil {
 					log.Error(err)
 					continue
 				}
 
+				what := fmt.Sprintf("marked instance %s unhealthy", i.Id)
+				why := fmt.Sprintf("ECS reported agent disconnected")
+
 				// log for humans
-				fmt.Printf("who=\"convox/monitor\" what=\"marked instance %s unhealthy\" why=\"ECS reported agent disconnected\"\n", i.Id)
+				fmt.Printf("who=\"convox/monitor\" what=\"%s\" why=\"%s\"\n", what, why)
+
+				p.NotifySuccess("instance:unhealthy", map[string]string{
+					"message":  what,
+					"reason":   why,
+					"instance": i.Id,
+				})
+
 			}
 		}
 
@@ -176,7 +185,6 @@ func describeECS(instances ec2Instances, p *AWSProvider) error {
 			Cluster: aws.String(os.Getenv("CLUSTER")),
 		},
 	)
-
 	if err != nil {
 		return err
 	}
@@ -187,7 +195,6 @@ func describeECS(instances ec2Instances, p *AWSProvider) error {
 			ContainerInstances: res.ContainerInstanceArns,
 		},
 	)
-
 	if err != nil {
 		return err
 	}
