@@ -2,6 +2,7 @@ package aws
 
 import (
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -73,6 +74,22 @@ func (p *AWSProvider) CapacityGet() (*structs.Capacity, error) {
 }
 
 type ECSServices []*ecs.Service
+
+func (services ECSServices) LastEvent() ecs.ServiceEvent {
+	e := ecs.ServiceEvent{
+		CreatedAt: aws.Time(time.Unix(0, 0)),
+	}
+
+	for i := 0; i < len(services); i++ {
+		s := services[i]
+
+		if len(s.Events) > 0 && s.Events[0].CreatedAt.After(*e.CreatedAt) {
+			e = *s.Events[0]
+		}
+	}
+
+	return e
+}
 
 func (p *AWSProvider) clusterServices() (ECSServices, error) {
 	services := ECSServices{}

@@ -144,6 +144,11 @@ func (p *TestProviderRunner) MonitorCluster() {
 	return
 }
 
+func (p *TestProviderRunner) MonitorEvents() {
+	p.Called()
+	return
+}
+
 func (p *TestProviderRunner) MonitorHeartbeat() {
 	p.Called()
 	return

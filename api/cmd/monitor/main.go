@@ -11,6 +11,7 @@ func main() {
 	go workers.StartAutoscale()
 	go provider.MonitorCluster()
 	go provider.MonitorHeartbeat()
+	go provider.MonitorEvents()
 	go workers.StartServicesCapacity()
 
 	for {

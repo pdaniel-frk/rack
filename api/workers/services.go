@@ -19,10 +19,6 @@ func StartServicesCapacity() {
 	}
 }
 
-func ServiceEvents() {
-
-}
-
 // Get initial convergence state
 func checkConverged() (bool, ecs.ServiceEvent) {
 	log := logger.New("ns=services_monitor")

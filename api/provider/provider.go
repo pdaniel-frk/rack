@@ -45,6 +45,7 @@ type Provider interface {
 	LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error
 
 	MonitorCluster()
+	MonitorEvents()
 	MonitorHeartbeat()
 
 	Notify(name, status string, data map[string]string) error
@@ -182,6 +183,11 @@ func LogStream(app string, w io.Writer, opts structs.LogStreamOptions) error {
 
 func MonitorCluster() {
 	CurrentProvider.MonitorCluster()
+	return
+}
+
+func MonitorEvents() {
+	CurrentProvider.MonitorEvents()
 	return
 }
 

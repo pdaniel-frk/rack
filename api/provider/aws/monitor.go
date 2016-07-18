@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/convox/rack/api/helpers"
+	"github.com/convox/rack/api/structs"
 	"github.com/ddollar/logger"
 )
 
@@ -27,6 +28,15 @@ func (p *AWSProvider) MonitorHeartbeat() {
 
 	for _ = range time.Tick(1 * time.Hour) {
 		p.heartbeat(log)
+	}
+}
+
+func (p *AWSProvider) MonitorEvents() {
+
+	since := time.Now()
+
+	for _ = range time.Tick(15 * time.Second) {
+		since = checkEvents(p, since)
 	}
 }
 
@@ -118,6 +128,63 @@ func (p *AWSProvider) heartbeat(log *logger.Logger) {
 		"region":         os.Getenv("AWS_REGION"),
 		"version":        system.Version,
 	})
+}
+
+func checkEvents(p *AWSProvider, since time.Time) time.Time {
+
+	services, err := p.clusterServices()
+	if err != nil {
+		fmt.Printf("fn=checkEvents erra=\"unable to get services: %s\"\n", err)
+		return time.Now()
+	}
+
+	for _, s := range services {
+		var app string
+		apps, err := p.AppList()
+		if err != nil {
+			fmt.Printf("fn=checkEvents erra=\"unable to get app list: %s\"\n", err)
+			apps = structs.Apps{}
+		}
+
+		for _, a := range apps {
+			if strings.HasPrefix(*s.ServiceName, fmt.Sprintf("%s-%s", os.Getenv("RACK"), a.Name)) {
+				app = a.Name
+			}
+		}
+
+		// This logic can be improved once provider has a way to list process for an app.
+		var process string
+		if app != "" {
+			ps := strings.SplitAfter(*s.ServiceName, fmt.Sprintf("%s-", app))
+			if len(ps) == 2 {
+				p := strings.Split(ps[1], "-")
+				if len(p) == 2 {
+					process = p[0]
+				}
+			}
+		}
+
+		for _, e := range s.Events {
+			if e.CreatedAt.After(since) {
+				fmt.Printf("===================== SERVICE %s EVENT: %s \n", *s.ServiceName, e)
+
+				if strings.HasSuffix(*e.Message, "has reached a steady state.") {
+					fmt.Println("INSIDE IF READY STATE")
+
+					p.NotifySuccess("process:ready", map[string]string{
+						"message": fmt.Sprintf("Process %s for app %s is ready.\n", process, app),
+						"process": process,
+						"app":     app,
+					})
+				}
+
+			}
+		}
+	}
+
+	t := *services.LastEvent().CreatedAt
+	fmt.Println("==================== TIME: ", t)
+	return t
 }
 
 type ec2Instance struct {
