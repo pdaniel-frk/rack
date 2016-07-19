@@ -154,22 +154,6 @@ func (p *TestProviderRunner) MonitorHeartbeat() {
 	return
 }
 
-func (p *TestProviderRunner) Notify(action, status string, data map[string]string) error {
-	p.Called(action, status, data)
-	return nil
-}
-
-func (p *TestProviderRunner) NotifyError(action string, err error, data map[string]string) error {
-	p.Called(action, err, data)
-	return nil
-}
-
-func (p *TestProviderRunner) NotifySuccess(action string, data map[string]string) error {
-	p.Called(action, data)
-	return nil
-
-}
-
 func (p *TestProviderRunner) ReleaseDelete(app, id string) (*structs.Release, error) {
 	p.Called(app, id)
 	return &p.Release, nil

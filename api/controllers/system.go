@@ -3,9 +3,11 @@ package controllers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/convox/rack/api/httperr"
 	"github.com/convox/rack/api/provider"
+	"github.com/convox/rack/api/structs"
 )
 
 func SystemReleaseList(rw http.ResponseWriter, r *http.Request) *httperr.Error {
@@ -97,7 +99,12 @@ func SystemUpdate(rw http.ResponseWriter, r *http.Request) *httperr.Error {
 		return httperr.Server(err)
 	}
 
-	provider.NotifySuccess("rack:update", notifyData)
+	provider.EventSend(&structs.Event{
+		Action:    "rack:update",
+		Status:    "success",
+		Data:      notifyData,
+		Timestamp: time.Now(),
+	}, nil)
 
 	return RenderJson(rw, rack)
 }

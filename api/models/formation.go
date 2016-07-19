@@ -6,8 +6,10 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/convox/rack/api/provider"
+	"github.com/convox/rack/api/structs"
 )
 
 type FormationEntry struct {
@@ -226,10 +228,15 @@ func SetFormation(app, process string, opts FormationOptions) error {
 		}
 	}
 
-	provider.NotifySuccess("release:scale", map[string]string{
-		"app": rel.App,
-		"id":  rel.Id,
-	})
+	provider.EventSend(&structs.Event{
+		Action: "release:scale",
+		Status: "success",
+		Data: map[string]string{
+			"app": rel.App,
+			"id":  rel.Id,
+		},
+		Timestamp: time.Now(),
+	}, nil)
 
 	return a.UpdateParams(params)
 }

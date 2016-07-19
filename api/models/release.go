@@ -17,6 +17,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/convox/rack/api/crypt"
 	"github.com/convox/rack/api/provider"
+	"github.com/convox/rack/api/structs"
 )
 
 type Release struct {
@@ -119,7 +120,12 @@ func (r *Release) Save() error {
 		}
 	}
 
-	provider.NotifySuccess("release:create", map[string]string{"id": r.Id, "app": r.App})
+	provider.EventSend(&structs.Event{
+		Action:    "release:create",
+		Status:    "success",
+		Data:      map[string]string{"id": r.Id, "app": r.App},
+		Timestamp: time.Now(),
+	}, nil)
 
 	return S3Put(app.Outputs["Settings"], fmt.Sprintf("releases/%s/env", r.Id), env, true)
 }
@@ -303,10 +309,15 @@ func (r *Release) Promote() error {
 
 	_, err = UpdateStack(req)
 
-	provider.NotifySuccess("release:promote", map[string]string{
-		"app": r.App,
-		"id":  r.Id,
-	})
+	provider.EventSend(&structs.Event{
+		Action: "release:promote",
+		Status: "success",
+		Data: map[string]string{
+			"app": r.App,
+			"id":  r.Id,
+		},
+		Timestamp: time.Now(),
+	}, nil)
 
 	return err
 }

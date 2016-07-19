@@ -94,12 +94,16 @@ func (p *AWSProvider) MonitorCluster() {
 				// log for humans
 				fmt.Printf("who=\"convox/monitor\" what=\"%s\" why=\"%s\"\n", what, why)
 
-				p.NotifySuccess("instance:unhealthy", map[string]string{
-					"message":  what,
-					"reason":   why,
-					"instance": i.Id,
-				})
-
+				p.EventSend(&structs.Event{
+					Action: "instance:unhealthy",
+					Status: "success",
+					Data: map[string]string{
+						"message":  what,
+						"reason":   why,
+						"instance": i.Id,
+					},
+					Timestamp: time.Now(),
+				}, nil)
 			}
 		}
 
@@ -171,11 +175,16 @@ func checkEvents(p *AWSProvider, since time.Time) time.Time {
 				if strings.HasSuffix(*e.Message, "has reached a steady state.") {
 					fmt.Println("INSIDE IF READY STATE")
 
-					p.NotifySuccess("process:ready", map[string]string{
-						"message": fmt.Sprintf("Process %s for app %s is ready.\n", process, app),
-						"process": process,
-						"app":     app,
-					})
+					p.EventSend(&structs.Event{
+						Action: "process:ready",
+						Status: "success",
+						Data: map[string]string{
+							"message": fmt.Sprintf("Process %s for app %s is ready.\n", process, app),
+							"process": process,
+							"app":     app,
+						},
+						Timestamp: time.Now(),
+					}, nil)
 				}
 
 			}

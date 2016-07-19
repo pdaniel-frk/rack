@@ -48,10 +48,6 @@ type Provider interface {
 	MonitorEvents()
 	MonitorHeartbeat()
 
-	Notify(name, status string, data map[string]string) error
-	NotifyError(action string, err error, data map[string]string) error
-	NotifySuccess(action string, data map[string]string) error
-
 	ReleaseDelete(app, id string) (*structs.Release, error)
 	ReleaseGet(app, id string) (*structs.Release, error)
 	ReleaseList(app string) (structs.Releases, error)
@@ -194,18 +190,6 @@ func MonitorEvents() {
 func MonitorHeartbeat() {
 	CurrentProvider.MonitorHeartbeat()
 	return
-}
-
-func Notify(action, status string, data map[string]string) error {
-	return CurrentProvider.Notify(action, status, data)
-}
-
-func NotifyError(action string, err error, data map[string]string) error {
-	return CurrentProvider.NotifyError(action, err, data)
-}
-
-func NotifySuccess(action string, data map[string]string) error {
-	return CurrentProvider.NotifySuccess(action, data)
 }
 
 func ReleaseDelete(app, id string) (*structs.Release, error) {
