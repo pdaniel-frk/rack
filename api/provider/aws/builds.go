@@ -575,10 +575,12 @@ func (p *AWSProvider) buildFromItem(item map[string]*dynamodb.AttributeValue, bu
 }
 
 func (p *AWSProvider) buildRun(a *structs.App, b *structs.Build, args []string, env []string, stdin io.Reader) error {
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ START buildRun")
 	cmd := exec.Command("docker", args...)
 	cmd.Env = env
 	cmd.Stdin = stdin
 	cmd.Stderr = cmd.Stdout // redirect cmd stderr to stdout
+	fmt.Printf("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ CMD %#v", cmd)
 
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -588,6 +590,7 @@ func (p *AWSProvider) buildRun(a *structs.App, b *structs.Build, args []string, 
 
 	// start build command
 	err = cmd.Start()
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ START err", err)
 	if err != nil {
 		helpers.Error(nil, err) // send internal error to rollbar
 		return err
@@ -599,6 +602,7 @@ func (p *AWSProvider) buildRun(a *structs.App, b *structs.Build, args []string, 
 }
 
 func (p *AWSProvider) buildWait(a *structs.App, b *structs.Build, cmd *exec.Cmd, stdout io.ReadCloser) {
+	fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ START buildWait")
 	// scan all output
 	out := ""
 	scanner := bufio.NewScanner(stdout)
@@ -612,7 +616,29 @@ func (p *AWSProvider) buildWait(a *structs.App, b *structs.Build, cmd *exec.Cmd,
 	}
 
 	// and wait for a return code
-	werr := cmd.Wait()
+
+	var cmdStatus string
+	waitErr := make(chan error)
+	timeout := time.After(1 * time.Second)
+
+	go func() {
+		waitErr <- cmd.Wait()
+	}()
+
+	select {
+	case <-timeout:
+		cmdStatus = "timeout"
+		// Destroy build container here
+		break
+
+	case werr := <-waitErr:
+		// Wait / return code are errors, consider the build failed
+		fmt.Println("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$ AFTER cmd.Wait", werr)
+		if werr != nil {
+			cmdStatus = "failed"
+		}
+		break
+	}
 
 	// reload build item to get data from BuildUpdate callback
 	b, err := p.BuildGet(b.App, b.Id)
@@ -621,10 +647,7 @@ func (p *AWSProvider) buildWait(a *structs.App, b *structs.Build, cmd *exec.Cmd,
 		return
 	}
 
-	// Wait / return code are errors, consider the build failed
-	if werr != nil {
-		b.Status = "failed"
-	}
+	b.Status = cmdStatus
 
 	// save final build logs / status
 	b.Logs = string(out)
